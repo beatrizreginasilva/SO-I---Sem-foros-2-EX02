@@ -1,0 +1,58 @@
+package SOI10;
+
+import java.util.Random;
+
+public class SOI10 {
+
+    private static final Object portaLock = new Object();
+
+    static class Pessoa extends Thread {
+        private String nome;
+        private double velocidade; 
+        private double distanciaCorredor = 200; 
+        private Random random = new Random();
+
+        public Pessoa(String nome) {
+            this.nome = nome;
+            this.velocidade = 4 + (random.nextDouble() * 2);
+        }
+
+        @Override
+        public void run() {
+            try {
+                caminharAtePorta();
+                atravessarPorta();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void caminharAtePorta() throws InterruptedException {
+            double tempoCaminhada = distanciaCorredor / velocidade; 
+            System.out.println(nome + " está caminhando a " + String.format("%.2f", velocidade) + " m/s.");
+            Thread.sleep((long) (tempoCaminhada * 1000)); 
+            System.out.println(nome + " chegou à porta.");
+        }
+
+        private void atravessarPorta() throws InterruptedException {
+            synchronized (portaLock) {
+                System.out.println(nome + " está abrindo a porta...");
+                int tempoParaPassar = 1000 + random.nextInt(1000);
+                Thread.sleep(tempoParaPassar);
+                System.out.println(nome + " cruzou a porta em " + (tempoParaPassar / 1000.0) + " segundos.");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Pessoa pessoa1 = new Pessoa("Pessoa 1");
+        Pessoa pessoa2 = new Pessoa("Pessoa 2");
+        Pessoa pessoa3 = new Pessoa("Pessoa 3");
+        Pessoa pessoa4 = new Pessoa("Pessoa 4");
+
+        pessoa1.start();
+        pessoa2.start();
+        pessoa3.start();
+        pessoa4.start();
+    }
+}
